@@ -6,7 +6,21 @@ import { faRefresh } from "@fortawesome/free-solid-svg-icons/faRefresh";
 import WonScreen from "./WonScreen";
 import { Tooltip } from "react-tooltip";
 const GameMenu = () => {
-  const defaultBoard = {
+  /*   type board = {
+    0: string;
+    1: string;
+    2: string;
+    3: string;
+    4: string;
+    5: string;
+    6: string;
+    7: string;
+    8: string;
+  }; */
+  type board = {
+    [key: number]: any;
+  };
+  const defaultBoard: board = {
     0: "",
     1: "",
     2: "",
@@ -19,8 +33,11 @@ const GameMenu = () => {
   };
   const [xTurn, setXTurn] = useState(true);
   const [won, setWon] = useState(false);
-  const [boardData, setBoardData] = useState(defaultBoard);
-  const [resetBoard, setResetBoard] = useState(false);
+  const [boardData, setBoardData]: [
+    board,
+    React.Dispatch<React.SetStateAction<board>>
+  ] = useState(defaultBoard);
+
   const [tries, setTries] = useState(0);
   const winCondition = [
     [0, 1, 2],
@@ -33,7 +50,7 @@ const GameMenu = () => {
     [6, 7, 8],
   ];
 
-  const updateBoardData = (idx) => {
+  const updateBoardData = (idx: keyof typeof boardData) => {
     if (boardData[idx] === "" && !won) {
       setTries(tries + 1);
 
@@ -42,9 +59,10 @@ const GameMenu = () => {
       setXTurn(!xTurn);
     }
   };
-  const checkWinner = () => {
+  const checkWinner = (boardData: board) => {
     winCondition.map((bd) => {
       const [a, b, c] = bd;
+
       if (
         boardData[a] &&
         boardData[a] === boardData[b] &&
@@ -61,7 +79,6 @@ const GameMenu = () => {
     setBoardData(defaultBoard);
     setWon(false);
     setTries(0);
-    setResetBoard(true);
   };
   return (
     <>
