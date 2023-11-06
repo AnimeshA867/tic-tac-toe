@@ -1,0 +1,8 @@
+.X::before {
+  content: "X";
+  transition: all 1s linear;
+}
+.O::before {
+  content: "O";
+  transition: all 1s linear;
+}
