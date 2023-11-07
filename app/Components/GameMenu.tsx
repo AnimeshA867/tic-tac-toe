@@ -5,6 +5,8 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faRefresh } from "@fortawesome/free-solid-svg-icons/faRefresh";
 import WonScreen from "./WonScreen";
 import { Tooltip } from "react-tooltip";
+import { act } from "react-dom/test-utils";
+
 const GameMenu = () => {
   /*   type board = {
     0: string;
@@ -38,6 +40,13 @@ const GameMenu = () => {
     React.Dispatch<React.SetStateAction<board>>
   ] = useState(defaultBoard);
 
+  const [result, setResult]: [
+    board,
+    React.Dispatch<React.SetStateAction<board>>
+  ] = useState(boardData);
+
+  const [action, setAction] = React.useState<number[]>([]);
+
   const [tries, setTries] = useState(0);
   const winCondition = [
     [0, 1, 2],
@@ -57,6 +66,14 @@ const GameMenu = () => {
       let value = xTurn === true ? "X" : "O";
       setBoardData({ ...boardData, [idx]: value });
       setXTurn(!xTurn);
+      const temp = action.filter((e) => {
+        if (e != idx) {
+          return e;
+        }
+      });
+      setAction(temp);
+      setResult(boardData);
+      minimax(result);
     }
   };
   const checkWinner = (boardData: board) => {
@@ -80,6 +97,35 @@ const GameMenu = () => {
     setWon(false);
     setTries(0);
   };
+
+  const evalBoard = (board: board, tries) => {
+    checkWinner(board);
+    if (won && tries % 2 == 1) {
+      setWon(false);
+      return 1;
+    } else if (won && tries % 2 == 0) {
+      setWon(false);
+      return -1;
+    } else if (tries == 9) {
+      return 0;
+    }
+  };
+  const minimax =(board,depth,isMinimizingPlayer,tries){
+    const result=evalBoard(board,tries);
+    if(result!=0||depth===0){
+      return result;
+    }
+    if(isMinimizingPlayer){
+      let bestScore=Infinity;
+     for(let i of board){
+        if(board[i]==''){
+          board[i]='O';
+          const score= minimax(board,depth-1,true);
+        }
+     }
+    }
+  }
+
   return (
     <>
       <div className="py-6  font-semibold text-center flex justify-center gap-4">
