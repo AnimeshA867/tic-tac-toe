@@ -40,13 +40,6 @@ const GameMenu = () => {
     React.Dispatch<React.SetStateAction<board>>
   ] = useState(defaultBoard);
 
-  const [result, setResult]: [
-    board,
-    React.Dispatch<React.SetStateAction<board>>
-  ] = useState(boardData);
-
-  const [action, setAction] = React.useState<number[]>([]);
-
   const [tries, setTries] = useState(0);
   const winCondition = [
     [0, 1, 2],
@@ -66,14 +59,6 @@ const GameMenu = () => {
       let value = xTurn === true ? "X" : "O";
       setBoardData({ ...boardData, [idx]: value });
       setXTurn(!xTurn);
-      const temp = action.filter((e) => {
-        if (e != idx) {
-          return e;
-        }
-      });
-      setAction(temp);
-      setResult(boardData);
-      minimax(result);
     }
   };
   const checkWinner = (boardData: board) => {
@@ -91,6 +76,10 @@ const GameMenu = () => {
   };
   useEffect(() => {
     checkWinner(boardData);
+    if (tries < 9 && !won && !xTurn) {
+      const bestMove = findBestMove(boardData);
+      // updateBoardData(bestMove);
+    }
   }, [boardData]);
   const restart = () => {
     setBoardData(defaultBoard);
@@ -98,33 +87,73 @@ const GameMenu = () => {
     setTries(0);
   };
 
-  const evalBoard = (board: board, tries) => {
-    checkWinner(board);
-    if (won && tries % 2 == 1) {
-      setWon(false);
-      return 1;
-    } else if (won && tries % 2 == 0) {
-      setWon(false);
-      return -1;
-    } else if (tries == 9) {
-      return 0;
+  const evalBoard = (board: board) => {
+    let result = null;
+    for (const condition of winCondition) {
+      const [a, b, c] = condition;
+      if (board[a] && board[a] === board[b] && board[a] === board[c]) {
+        result = board[a] === "X" ? 1 : -1;
+      }
+      if (
+        board[a] &&
+        board[a] != "" &&
+        board[a] === board[b] &&
+        board[a] === board[c]
+      )
+        result = 0;
     }
+    return result;
   };
-  const minimax =(board,depth,isMinimizingPlayer,tries){
-    const result=evalBoard(board,tries);
-    if(result!=0||depth===0){
+
+  const minimax = (board: board, isMaximizing: boolean, depth: number) => {
+    let result: number | null = evalBoard(board);
+    if (result != null || depth == 0) {
       return result;
     }
-    if(isMinimizingPlayer){
-      let bestScore=Infinity;
-     for(let i of board){
-        if(board[i]==''){
-          board[i]='O';
-          const score= minimax(board,depth-1,true);
+    if (isMaximizing) {
+      let score = -Infinity;
+      for (let i in board) {
+        if (board[i] === "") {
+          let temp = Object.assign({}, board);
+          temp[i] = "X";
+          score = Math.max(score, minimax(temp, false, depth - 1));
         }
-     }
+        console.log(board);
+      }
+      return score;
+    } else {
+      let score = Infinity;
+      for (let i in board) {
+        if (board[i] === "") {
+          let temp = Object.assign({}, board);
+          // let temp = { ...board };
+          temp[i] = "O";
+          score = Math.min(score, minimax(temp, true, depth - 1));
+        }
+        console.log(board);
+      }
+      return score;
     }
-  }
+  };
+
+  const findBestMove = (board: board) => {
+    let bestMove = -Infinity; // Initialize to negative infinity for maximizing
+    let move = null;
+
+    for (let i in board) {
+      if (board[i] == "") {
+        let temp = { ...board };
+        temp[i] = "O";
+        const score = minimax(temp, false, 4);
+        if (score > bestMove) {
+          bestMove = score;
+          move = i;
+        }
+      }
+    }
+    console.log(move);
+    return move;
+  };
 
   return (
     <>
