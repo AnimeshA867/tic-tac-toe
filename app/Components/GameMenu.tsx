@@ -90,7 +90,6 @@ const GameMenu = ({ multiplayer }: { multiplayer: boolean }) => {
       }
 
       if (move != null) {
-        console.log(`At move ${bestMove} with the value of ${bestMove}`);
         const updatedBoard = { ...boardData, [move]: ai };
         setTurn("human");
         setBoardData(updatedBoard);
