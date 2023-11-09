@@ -58,7 +58,13 @@ const GameMenu = ({ multiplayer }: { multiplayer: boolean }) => {
     setBoardData(defaultBoard);
     setWon(false);
     setTries(0);
-    setTurn("human");
+    if (!multiplayer) {
+      if (turn == "human") {
+        setTurn("bot");
+      } else {
+        setTurn("human");
+      }
+    }
     multiplayer && setXTurn(true);
   };
 
@@ -134,11 +140,11 @@ const GameMenu = ({ multiplayer }: { multiplayer: boolean }) => {
           status={won}
         />
       )}
-      <div className="grid gap-4 grid-cols-3 md:h-[300px] h-[150px] w-fit">
+      <div className="grid gap-4 grid-cols-3 md:h-[400px] md:w-[400px] aspect-square w-full">
         {[...Array(9)].map((v, idx) => {
           return (
             <div
-              className="md:h-[100px] md:w-[100px] h-[50px] w-[50px] rounded-lg shadow-md shadow-gray-400 relative"
+              className=" rounded-lg shadow-md shadow-gray-400 relative"
               key={idx}
             >
               <div

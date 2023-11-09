@@ -72,8 +72,7 @@
         if (board[i] == "") {
           board[i] = ai;
          
-          let score =
-            minimax(board, false);
+          let score =minimax(board, false)-Math.floor(Math.random()*10);
           board[i] = "";
           bestScore = Math.max(score, bestScore);
         }
@@ -86,7 +85,7 @@
         if (board[i] == "") {
           board[i] = human;
          
-          let score =minimax(board, true);
+          let score =minimax(board, true)-Math.floor(Math.random()*5);
           board[i] = "";
           bestScore = Math.min(score, bestScore);
         }
