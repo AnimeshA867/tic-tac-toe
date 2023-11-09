@@ -1,12 +1,17 @@
+import Link from "next/link";
 import React from "react";
 
 export default function Header() {
   return (
     <>
       <header>
-        <h1 className="text-3xl font-bold dark:text-white text-black  text-center w-screen cursor-default pointer-events-none lg:text-[4rem] pt-8 absolute ">
-          Tic Tac Toe
-        </h1>
+        <Link href={"/"}>
+          <h1 className="text-3xl font-bold   text-center w-screen cursor-pointer  lg:text-[4rem] absolute z-20 backdrop-blur-md top-0 lg:h-fit py-8">
+            <span className="text-transparent bg-clip-text bg-gradient-to-t from-red-700 via-violet-600 to-sky-600">
+              Tic Tac Toe
+            </span>
+          </h1>
+        </Link>
       </header>
     </>
   );
