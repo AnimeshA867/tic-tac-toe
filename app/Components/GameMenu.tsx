@@ -42,7 +42,7 @@ const GameMenu = () => {
     [6, 7, 8],
   ];
 
-  let scores = {
+  let scores: { [key: string]: number } = {
     X: -10,
     O: 10,
     tie: 0,
@@ -56,7 +56,7 @@ const GameMenu = () => {
     setBoardData({ ...boardData, [idx]: "X" });
   };
 
-  const checkWinner = (board: board) => {
+  const checkWinner = (board: board): string | null => {
     let winner = null;
     winCondition.forEach((bd) => {
       const [a, b, c] = bd;
@@ -103,7 +103,7 @@ const GameMenu = () => {
   };
 
   const minimax = (board: board, isMaximizing: boolean): number => {
-    const result = checkWinner(board);
+    const result: any = checkWinner(board);
 
     if (result !== null) {
       return scores[result];
@@ -143,40 +143,42 @@ const GameMenu = () => {
     }
   };
   const findBestMove = () => {
-    let bestMove = -Infinity;
-    let moveOptions = [];
-    let move;
-    const board = { ...boardData };
+    setTimeout(() => {
+      let bestMove = -Infinity;
+      let moveOptions = [];
+      let move;
+      const board = { ...boardData };
 
-    for (let i = 0; i < Object.keys(board).length; i++) {
-      if (board[i] === "") {
-        board[i] = ai;
-        const score = minimax(board, false);
-        board[i] = "";
-        if (score >= bestMove) {
-          if (score > bestMove) {
-            // If a new best move is found, reset the options array
-            // moveOptions = [];
-            bestMove = score;
-            move = i;
+      for (let i = 0; i < Object.keys(board).length; i++) {
+        if (board[i] === "") {
+          board[i] = ai;
+          const score = minimax(board, false);
+          board[i] = "";
+          if (score >= bestMove) {
+            if (score > bestMove) {
+              // If a new best move is found, reset the options array
+              // moveOptions = [];
+              bestMove = score;
+              move = i;
+            }
+            // moveOptions.push(i);
           }
-          // moveOptions.push(i);
+          console.log(`At move ${i} with the value of ${bestMove}`);
         }
-        console.log(`At move ${i} with the value of ${bestMove}`);
       }
-    }
 
-    // Randomly select one of the best moves
-    // const randomMove =
-    //   moveOptions[Math.floor(Math.random() * moveOptions.length)];
+      // Randomly select one of the best moves
+      // const randomMove =
+      //   moveOptions[Math.floor(Math.random() * moveOptions.length)];
 
-    if (!won) {
-      console.log(`At move ${bestMove} with the value of ${bestMove}`);
-      const updatedBoard = { ...boardData, [move]: ai };
-      setTurn("human");
-      setBoardData(updatedBoard);
-      setTries(tries + 1);
-    }
+      if (move != null) {
+        console.log(`At move ${bestMove} with the value of ${bestMove}`);
+        const updatedBoard = { ...boardData, [move]: ai };
+        setTurn("human");
+        setBoardData(updatedBoard);
+        setTries(tries + 1);
+      }
+    }, 500);
   };
 
   return (
@@ -205,7 +207,7 @@ const GameMenu = () => {
       </div>
       {won && (
         <WonScreen
-          player={tries % 2 == 1 ? "Player 1" : "Player 2"}
+          player={checkWinner(boardData) == "X" ? "Player" : "Bot"}
           newVal={boardData}
           status={won}
         />
