@@ -5,23 +5,12 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faRefresh } from "@fortawesome/free-solid-svg-icons/faRefresh";
 import WonScreen from "./WonScreen";
 import { Tooltip } from "react-tooltip";
-import { act } from "react-dom/test-utils";
 
 const GameMenu = () => {
-  /*   type board = {
-    0: string;
-    1: string;
-    2: string;
-    3: string;
-    4: string;
-    5: string;
-    6: string;
-    7: string;
-    8: string;
-  }; */
   type board = {
-    [key: number]: any;
+    [key: number]: string;
   };
+
   const defaultBoard: board = {
     0: "",
     1: "",
@@ -33,14 +22,14 @@ const GameMenu = () => {
     7: "",
     8: "",
   };
-  const [xTurn, setXTurn] = useState(true);
-  const [won, setWon] = useState(false);
-  const [boardData, setBoardData]: [
-    board,
-    React.Dispatch<React.SetStateAction<board>>
-  ] = useState(defaultBoard);
 
+  const [turn, setTurn] = useState<"human" | "bot">("human");
+  const [won, setWon] = useState(false);
+  const [boardData, setBoardData] = useState<board>(defaultBoard);
+  const ai = "O";
+  const human = "X";
   const [tries, setTries] = useState(0);
+
   const winCondition = [
     [0, 1, 2],
     [0, 4, 8],
@@ -52,107 +41,105 @@ const GameMenu = () => {
     [6, 7, 8],
   ];
 
-  const updateBoardData = (idx: keyof typeof boardData) => {
-    if (boardData[idx] === "" && !won) {
-      setTries(tries + 1);
-
-      let value = xTurn === true ? "X" : "O";
-      setBoardData({ ...boardData, [idx]: value });
-      setXTurn(!xTurn);
-    }
+  let scores = {
+    X: 10,
+    O: -10,
+    tie: 0,
   };
-  const checkWinner = (boardData: board) => {
-    winCondition.map((bd) => {
+
+  const updateBoardData = (idx: keyof board) => {
+    if (won || boardData[idx] !== "") return;
+    setTurn("bot");
+
+    setTries(tries + 1);
+    setBoardData({ ...boardData, [idx]: "X" });
+  };
+
+  useEffect(() => {
+    if (tries < 9 && turn === "bot") {
+      findBestMove();
+    }
+  }, []);
+
+  const checkWinner = (board: board) => {
+    let winner = null;
+    winCondition.forEach((bd) => {
       const [a, b, c] = bd;
 
-      if (
-        boardData[a] &&
-        boardData[a] === boardData[b] &&
-        boardData[a] === boardData[c]
-      ) {
-        setWon(true);
+      if (board[a] && board[a] === board[b] && board[a] === board[c]) {
+        winner = board[a];
+      }
+      for (let i = 0; i < 3; i++) {
+        if (board[i] !== "" && board[i + 3] !== "" && board[i + 6] !== "") {
+          winner = "tie";
+        }
       }
     });
+    return winner;
   };
+
   useEffect(() => {
-    checkWinner(boardData);
-    if (tries < 9 && !won && !xTurn) {
-      const bestMove = findBestMove(boardData);
-      // updateBoardData(bestMove);
+    let win = checkWinner(boardData);
+    if (win == "X" || win == "O") {
+      setWon(true);
     }
   }, [boardData]);
+
   const restart = () => {
     setBoardData(defaultBoard);
     setWon(false);
     setTries(0);
+    setTurn("human");
   };
+  const minimax = (board: board, isMaximizing: boolean): number => {
+    const result = checkWinner(board);
 
-  const evalBoard = (board: board) => {
-    let result = null;
-    for (const condition of winCondition) {
-      const [a, b, c] = condition;
-      if (board[a] && board[a] === board[b] && board[a] === board[c]) {
-        result = board[a] === "X" ? 1 : -1;
-      }
-      if (
-        board[a] &&
-        board[a] != "" &&
-        board[a] === board[b] &&
-        board[a] === board[c]
-      )
-        result = 0;
+    if (result !== null) {
+      return scores[result];
     }
-    return result;
-  };
 
-  const minimax = (board: board, isMaximizing: boolean, depth: number) => {
-    let result: number | null = evalBoard(board);
-    if (result != null || depth == 0) {
-      return result;
-    }
-    if (isMaximizing) {
-      let score = -Infinity;
-      for (let i in board) {
-        if (board[i] === "") {
-          let temp = Object.assign({}, board);
-          temp[i] = "X";
-          score = Math.max(score, minimax(temp, false, depth - 1));
+    let bestScore = isMaximizing ? -Infinity : Infinity;
+
+    for (let i = 0; i < Object.keys(board).length; i++) {
+      if (board[i] === "") {
+        board[i] = isMaximizing ? ai : human;
+
+        const score = minimax(board, !isMaximizing);
+        console.log(score);
+        board[i] = ""; // Reset the board for the next iteration
+
+        if (isMaximizing) {
+          bestScore = Math.max(score, bestScore);
+        } else {
+          bestScore = Math.min(score, bestScore);
         }
-        console.log(board);
       }
-      return score;
-    } else {
-      let score = Infinity;
-      for (let i in board) {
-        if (board[i] === "") {
-          let temp = Object.assign({}, board);
-          // let temp = { ...board };
-          temp[i] = "O";
-          score = Math.min(score, minimax(temp, true, depth - 1));
-        }
-        console.log(board);
-      }
-      return score;
     }
+
+    return bestScore;
   };
 
-  const findBestMove = (board: board) => {
-    let bestMove = -Infinity; // Initialize to negative infinity for maximizing
-    let move = null;
+  const findBestMove = () => {
+    let bestMove = -Infinity;
+    let move;
+    const board = { ...boardData };
 
-    for (let i in board) {
-      if (board[i] == "") {
-        let temp = { ...board };
-        temp[i] = "O";
-        const score = minimax(temp, false, 4);
+    for (let i = 0; i < Object.keys(board).length; i++) {
+      if (board[i] === "") {
+        board[i] = ai;
+        const score = minimax(board, false);
+        board[i] = "";
         if (score > bestMove) {
           bestMove = score;
           move = i;
         }
       }
     }
-    console.log(move);
-    return move;
+
+    const updatedBoard = { ...boardData, [move]: ai };
+    setTurn("human");
+    setBoardData(updatedBoard);
+    setTries(tries + 1);
   };
 
   return (
@@ -161,7 +148,9 @@ const GameMenu = () => {
         {tries == 9 || won ? (
           <p className="text-xl md:text-5xl">Try again </p>
         ) : (
-          <p className="text-xl md:text-5xl">{xTurn ? "X" : "O"} turn</p>
+          <p className="text-xl md:text-5xl">
+            {turn == "human" ? "X" : "O"} turn
+          </p>
         )}
         <span className="text-xl md:text-5xl">•</span>
         <button
