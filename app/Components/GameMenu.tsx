@@ -5,6 +5,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faRefresh } from "@fortawesome/free-solid-svg-icons/faRefresh";
 import WonScreen from "./WonScreen";
 import { Tooltip } from "react-tooltip";
+import { faBriefcaseClock } from "@fortawesome/free-solid-svg-icons";
 
 const GameMenu = () => {
   type board = {
@@ -23,7 +24,7 @@ const GameMenu = () => {
     8: "",
   };
 
-  const [turn, setTurn] = useState<"human" | "bot">("human");
+  const [turn, setTurn] = useState<"human" | "bot">("bot");
   const [won, setWon] = useState(false);
   const [boardData, setBoardData] = useState<board>(defaultBoard);
   const ai = "O";
@@ -42,8 +43,8 @@ const GameMenu = () => {
   ];
 
   let scores = {
-    X: 10,
-    O: -10,
+    X: -10,
+    O: 10,
     tie: 0,
   };
 
@@ -55,12 +56,6 @@ const GameMenu = () => {
     setBoardData({ ...boardData, [idx]: "X" });
   };
 
-  useEffect(() => {
-    if (tries < 9 && turn === "bot") {
-      findBestMove();
-    }
-  }, []);
-
   const checkWinner = (board: board) => {
     let winner = null;
     winCondition.forEach((bd) => {
@@ -69,21 +64,36 @@ const GameMenu = () => {
       if (board[a] && board[a] === board[b] && board[a] === board[c]) {
         winner = board[a];
       }
-      for (let i = 0; i < 3; i++) {
-        if (board[i] !== "" && board[i + 3] !== "" && board[i + 6] !== "") {
-          winner = "tie";
+    });
+    if (!winner) {
+      let isTie = true;
+      for (let i = 0; i < Object.keys(board).length; i++) {
+        if (board[i] === "") {
+          isTie = false;
+          break;
         }
       }
-    });
+
+      if (isTie) {
+        winner = "tie";
+      }
+    }
+
     return winner;
   };
 
   useEffect(() => {
     let win = checkWinner(boardData);
+    let state = false;
     if (win == "X" || win == "O") {
       setWon(true);
+      state = true;
+      console.log("useEffect to set won is executed.");
     }
-  }, [boardData]);
+    if (tries < 9 && turn === "bot" && !state) {
+      findBestMove();
+    }
+  }, [tries, boardData]);
 
   const restart = () => {
     setBoardData(defaultBoard);
@@ -91,36 +101,50 @@ const GameMenu = () => {
     setTries(0);
     setTurn("human");
   };
+
   const minimax = (board: board, isMaximizing: boolean): number => {
     const result = checkWinner(board);
 
     if (result !== null) {
       return scores[result];
     }
-
-    let bestScore = isMaximizing ? -Infinity : Infinity;
-
-    for (let i = 0; i < Object.keys(board).length; i++) {
-      if (board[i] === "") {
-        board[i] = isMaximizing ? ai : human;
-
-        const score = minimax(board, !isMaximizing);
-        console.log(score);
-        board[i] = ""; // Reset the board for the next iteration
-
-        if (isMaximizing) {
+    if (isMaximizing) {
+      let bestScore = -Infinity;
+      for (let i = 0; i < Object.keys(board).length; i++) {
+        if (board[i] == "") {
+          board[i] = ai;
+          /*   let result = checkWinner(board);
+          if (scores[result] == 10) {
+            return score[result];
+          } */
+          let score = minimax(board, false);
+          board[i] = "";
           bestScore = Math.max(score, bestScore);
-        } else {
+        }
+      }
+      // console.log(`The best score is ${bestScore}`);
+      return bestScore;
+    } else {
+      let bestScore = Infinity;
+      for (let i = 0; i < Object.keys(board).length; i++) {
+        if (board[i] == "") {
+          board[i] = human;
+          /*    let result = checkWinner(board);
+          if (scores[result] == -10) {
+            return score[result];
+          } */
+          let score = minimax(board, true);
+          board[i] = "";
           bestScore = Math.min(score, bestScore);
         }
       }
+      // console.log(`The best score is ${bestScore}`);
+      return bestScore;
     }
-
-    return bestScore;
   };
-
   const findBestMove = () => {
     let bestMove = -Infinity;
+    let moveOptions = [];
     let move;
     const board = { ...boardData };
 
@@ -129,17 +153,30 @@ const GameMenu = () => {
         board[i] = ai;
         const score = minimax(board, false);
         board[i] = "";
-        if (score > bestMove) {
-          bestMove = score;
-          move = i;
+        if (score >= bestMove) {
+          if (score > bestMove) {
+            // If a new best move is found, reset the options array
+            // moveOptions = [];
+            bestMove = score;
+            move = i;
+          }
+          // moveOptions.push(i);
         }
+        console.log(`At move ${i} with the value of ${bestMove}`);
       }
     }
 
-    const updatedBoard = { ...boardData, [move]: ai };
-    setTurn("human");
-    setBoardData(updatedBoard);
-    setTries(tries + 1);
+    // Randomly select one of the best moves
+    // const randomMove =
+    //   moveOptions[Math.floor(Math.random() * moveOptions.length)];
+
+    if (!won) {
+      console.log(`At move ${bestMove} with the value of ${bestMove}`);
+      const updatedBoard = { ...boardData, [move]: ai };
+      setTurn("human");
+      setBoardData(updatedBoard);
+      setTries(tries + 1);
+    }
   };
 
   return (
