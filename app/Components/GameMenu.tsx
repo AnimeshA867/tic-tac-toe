@@ -11,21 +11,45 @@ import {
   defaultBoard,
   checkWinner,
   minimax,
+  winCondition,
   ai,
+  defaultPosition,
 } from "@/utils/playGames";
 
-const GameMenu = ({ multiplayer }: { multiplayer: boolean }) => {
+const GameMenu = ({
+  multiplayer,
+  difficult,
+}: {
+  multiplayer: boolean;
+  difficult: boolean;
+}) => {
   const [turn, setTurn] = useState<string>("human");
   const [won, setWon] = useState(false);
   const [boardData, setBoardData] = useState<board>(defaultBoard);
   const [tries, setTries] = useState(0);
   const [wait, setWait] = useState(false);
   const [xTurn, setXTurn] = useState(true);
+  const [cord, setCord] = useState(defaultPosition);
+
   let scores: { [key: string]: number } = {
     X: -10,
     O: 10,
     tie: 0,
   };
+
+  const [winningCombo, setWinningCombo] = useState<number[]>();
+  // let winningCombo: number[] | null = [];
+  const checkWinner2 = (board: board): void => {
+    winCondition.forEach((bd) => {
+      const [a, b, c] = bd;
+
+      if (board[a] && board[a] === board[b] && board[a] === board[c]) {
+        setWinningCombo(bd);
+        // winningCombo = bd;
+      }
+    });
+  };
+  let diagonal = false;
 
   const updateBoardData = (idx: keyof board) => {
     if (won || boardData[idx] !== "") return;
@@ -43,12 +67,54 @@ const GameMenu = ({ multiplayer }: { multiplayer: boolean }) => {
   };
 
   useEffect(() => {
+    if (
+      JSON.stringify(winningCombo) == JSON.stringify([0, 4, 8]) ||
+      JSON.stringify(winningCombo) == JSON.stringify([2, 4, 6])
+    ) {
+      if (JSON.stringify(winningCombo) == "[0,4,8]") {
+        setCord({
+          x1: "0%",
+          y1: "0%",
+          x2: "100%",
+          y2: "100%",
+        });
+      } else {
+        setCord({
+          x2: "100%",
+          y2: "0%",
+          x1: "0%",
+          y1: "100%",
+        });
+      }
+    } else if (
+      JSON.stringify(winningCombo) == "[0,1,2]" ||
+      JSON.stringify(winningCombo) == "[3,4,5]" ||
+      JSON.stringify(winningCombo) == "[6,7,8]"
+    ) {
+      setCord({
+        x1: "00%",
+        y1: "50%",
+        x2: "100%",
+        y2: "50%",
+      });
+    } else {
+      setCord({
+        y1: "00%",
+        x1: "50%",
+        y2: "100%",
+        x2: "50%",
+      });
+    }
+  }, [winningCombo]);
+  useEffect(() => {
     let win = checkWinner(boardData);
+    checkWinner2(boardData);
     let state = false;
     if (win == "X" || win == "O") {
       setWon(true);
       state = true;
     }
+
     if (tries < 9 && turn === "bot" && !state) {
       findBestMove();
     }
@@ -65,6 +131,8 @@ const GameMenu = ({ multiplayer }: { multiplayer: boolean }) => {
         setTurn("human");
       }
     }
+    setCord(defaultPosition);
+    setWinningCombo([]);
     multiplayer && setXTurn(true);
   };
 
@@ -78,7 +146,7 @@ const GameMenu = ({ multiplayer }: { multiplayer: boolean }) => {
       for (let i = 0; i < Object.keys(board).length; i++) {
         if (board[i] === "") {
           board[i] = ai;
-          const score = minimax(board, false);
+          const score = minimax(board, false, difficult, -Infinity, Infinity);
           board[i] = "";
           if (score >= bestMove) {
             if (score > bestMove) {
@@ -120,7 +188,7 @@ const GameMenu = ({ multiplayer }: { multiplayer: boolean }) => {
           className="relative group text-xl md:text-5xl "
           type="button"
         >
-          <FontAwesomeIcon icon={faRefresh} />
+          <FontAwesomeIcon icon={faRefresh} className="text-red-600" />
         </button>
         <Tooltip id="tooltip-refresh" className="md:text-xl" />
       </div>
@@ -139,26 +207,48 @@ const GameMenu = ({ multiplayer }: { multiplayer: boolean }) => {
           status={won}
         />
       )}
-      <div className="grid gap-4 grid-cols-3 md:h-[400px] md:w-[400px] aspect-square w-full">
-        {[...Array(9)].map((v, idx) => {
-          return (
-            <div
-              className=" rounded-lg shadow-md shadow-gray-400 relative"
-              key={idx}
-            >
+      <div className="aspect-square w-full rounded-lg overflow-hidden flex justify-center items-center">
+        <div className="grid grid-cols-3  md:h-[400px] md:w-[400px] aspect-square w-full rounded-lg overflow-hidden">
+          {[...Array(9)].map((v, idx) => {
+            return (
               <div
-                onClick={() => {
-                  updateBoardData(idx);
-                }}
-                className={` h-full w-full rounded-lg shadow-slate-50/50 hover:shadow-gray-500/50 shadow-md ${
-                  wait ? "pointer-events-none" : "pointer-events-auto"
-                } ${
-                  boardData[idx]
-                } before:text-xl md:before:text-6xl before:text-skate-400 before:absolute before:left-1/2 before:top-1/2 before:-translate-x-1/2 font-bold before:-translate-y-1/2 hover:bg-cyan-200/60 bg-cyan-200/70 `}
-              ></div>
-            </div>
-          );
-        })}
+                className=" relative border-2 border-gray-200/50 rounded-none"
+                key={idx}
+              >
+                <svg
+                  className={`absolute w-full h-full ${
+                    winningCombo?.includes(idx) ? `visible` : `hidden`
+                  }`}
+                  xmlns="http://www.w3.org/2000/svg"
+                  version="1.1"
+                >
+                  <line
+                    x1={cord.x1 == "" ? "0%" : cord.x1}
+                    y1={cord.y1 == "" ? "0%" : cord.y1}
+                    x2={cord.x2 == "" ? "0%" : cord.x2}
+                    y2={cord.y2 == "" ? "0%" : cord.y2}
+                    className={`${
+                      checkWinner(boardData) == "X"
+                        ? `stroke-red-400`
+                        : `stroke-blue-600`
+                    } stroke-2`}
+                  />
+                </svg>
+
+                <div
+                  onClick={() => {
+                    updateBoardData(idx);
+                  }}
+                  className={` h-full w-full ${
+                    wait ? "pointer-events-none" : "pointer-events-auto"
+                  } ${
+                    boardData[idx]
+                  } before:text-xl md:before:text-6xl before:text-skate-400 before:absolute before:left-1/2 before:top-1/2 before:-translate-x-1/2 font-bold before:-translate-y-1/2  hover:bg-gray-200 bg-white text-white `}
+                ></div>
+              </div>
+            );
+          })}
+        </div>
       </div>
     </>
   );

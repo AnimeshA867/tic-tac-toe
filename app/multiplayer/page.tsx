@@ -3,7 +3,7 @@ import Playground from "../Components/Playground";
 const Page = () => {
   return (
     <div className="w-screen h-screen flex justify-center items-center">
-      <Playground multiplayer={true} />
+      <Playground multiplayer={true} difficult={true} />
     </div>
   );
 };

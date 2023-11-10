@@ -70,6 +70,10 @@ export default function RootLayout({
       <body className={inter.className}>
         <Header />
         {children}
+        <footer className="absolute bottom-2 text-center w-full">
+          {" "}
+          <p>Copyright @Animesh Acharya</p>
+        </footer>
       </body>
     </html>
   );

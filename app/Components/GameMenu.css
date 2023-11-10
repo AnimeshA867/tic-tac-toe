@@ -1,8 +1,44 @@
 .X::before {
   content: "X";
-  transition: all 1s linear;
+  transition: all 0.5s linear;
+  color: rgb(40, 40, 230);
 }
 .O::before {
   content: "O";
-  transition: all 1s linear;
+  transition: all 0.5s linear;
+  color: red;
+}
+.grid :nth-child(1) {
+  border-top: none;
+  border-left: none;
+}
+.grid :nth-child(2) {
+  border-top: none;
+}
+.grid :nth-child(3) {
+  border-top: none;
+  border-right: none;
+}
+.grid :nth-child(4) {
+  border-left: none;
+}
+.grid :nth-child(6) {
+  border-right: none;
+}
+.grid :nth-child(7) {
+  border-bottom: none;
+  border-left: none;
+}
+.grid :nth-child(8) {
+  border-bottom: none;
+}
+.grid :nth-child(9) {
+  border-bottom: none;
+  border-right: none;
+}
+
+.line ::before {
+  height: 4px;
+  width: 100%;
+  background-color: red;
 }
