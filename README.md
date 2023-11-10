@@ -1,4 +1,3 @@
-````markdown
 # Tic Tac Toe Game
 
 ![Tic Tac Toe Screenshot](./public/tictactoess.png)
@@ -37,7 +36,6 @@ To run the Tic Tac Toe game locally, follow these steps:
    ```bash
    git clone https://github.com/AnimeshA867/tic-tac-toe.git
    ```
-````
 
 2. Navigate to the project directory:
 
