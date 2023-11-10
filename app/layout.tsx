@@ -67,10 +67,12 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body className={inter.className}>
+      <body
+        className={`${inter.className} h-screen w-screen flex flex-col justify-between `}
+      >
         <Header />
         {children}
-        <footer className="absolute bottom-2 text-center w-full">
+        <footer className="relative bottom-0 text-center w-full ">
           {" "}
           <p>Copyright @Animesh Acharya</p>
         </footer>
