@@ -171,21 +171,21 @@ const GameMenu = ({
     <>
       <div className="py-6  font-semibold text-center flex justify-center gap-4">
         {tries == 9 || won ? (
-          <p className="text-xl md:text-5xl">Try again </p>
+          <p className="text-2xl md:text-5xl">Try again </p>
         ) : (
-          <p className="text-xl md:text-5xl">
+          <p className="text-2xl md:text-5xl">
             {!multiplayer ? (turn === "human" ? "X" : "O") : xTurn ? "X" : "O"}
             -turn
           </p>
         )}
-        <span className="text-xl md:text-5xl">•</span>
+        <span className="text-2xl md:text-5xl">•</span>
         <button
           data-tooltip-id="tooltip-refresh"
           data-tooltip-content="Refresh"
           onClick={() => {
             restart();
           }}
-          className="relative group text-xl md:text-5xl "
+          className="relative group text-2xl md:text-5xl "
           type="button"
         >
           <FontAwesomeIcon icon={faRefresh} className="text-red-600" />
@@ -207,48 +207,47 @@ const GameMenu = ({
           status={won}
         />
       )}
-      <div className="aspect-square w-full rounded-lg overflow-hidden flex justify-center items-center">
-        <div className="grid grid-cols-3  md:h-[400px] md:w-[400px] aspect-square w-full rounded-lg overflow-hidden">
-          {[...Array(9)].map((v, idx) => {
-            return (
-              <div
-                className=" relative border-2 border-gray-200/50 rounded-none"
-                key={idx}
-              >
-                <svg
-                  className={`absolute w-full h-full ${
-                    winningCombo?.includes(idx) ? `visible` : `hidden`
-                  }`}
-                  xmlns="http://www.w3.org/2000/svg"
-                  version="1.1"
-                >
-                  <line
-                    x1={cord.x1 == "" ? "0%" : cord.x1}
-                    y1={cord.y1 == "" ? "0%" : cord.y1}
-                    x2={cord.x2 == "" ? "0%" : cord.x2}
-                    y2={cord.y2 == "" ? "0%" : cord.y2}
-                    className={`${
-                      checkWinner(boardData) == "X"
-                        ? `stroke-red-400`
-                        : `stroke-blue-600`
-                    } stroke-2`}
-                  />
-                </svg>
 
-                <div
-                  onClick={() => {
-                    updateBoardData(idx);
-                  }}
-                  className={` h-full w-full ${
-                    wait ? "pointer-events-none" : "pointer-events-auto"
-                  } ${
-                    boardData[idx]
-                  } before:text-xl md:before:text-6xl before:text-skate-400 before:absolute before:left-1/2 before:top-1/2 before:-translate-x-1/2 font-bold before:-translate-y-1/2  hover:bg-gray-200 bg-white text-white `}
-                ></div>
-              </div>
-            );
-          })}
-        </div>
+      <div className="grid grid-cols-3  xl:h-[400px] xl:w-[400px] min-h-[350px] min-w-[350px] aspect-square w-full rounded-lg overflow-hidden">
+        {[...Array(9)].map((v, idx) => {
+          return (
+            <div
+              className=" relative border-2 border-gray-200/50 rounded-none "
+              key={idx}
+            >
+              <svg
+                className={`absolute w-full h-full ${
+                  winningCombo?.includes(idx) ? `visible` : `hidden`
+                }`}
+                xmlns="http://www.w3.org/2000/svg"
+                version="1.1"
+              >
+                <line
+                  x1={cord.x1 == "" ? "0%" : cord.x1}
+                  y1={cord.y1 == "" ? "0%" : cord.y1}
+                  x2={cord.x2 == "" ? "0%" : cord.x2}
+                  y2={cord.y2 == "" ? "0%" : cord.y2}
+                  className={`${
+                    checkWinner(boardData) == "X"
+                      ? `stroke-red-400`
+                      : `stroke-blue-600`
+                  } stroke-2`}
+                />
+              </svg>
+
+              <div
+                onClick={() => {
+                  updateBoardData(idx);
+                }}
+                className={` h-full w-full ${
+                  wait ? "pointer-events-none" : "pointer-events-auto"
+                } ${
+                  boardData[idx]
+                } before:text-xl md:before:text-6xl before:text-skate-400 before:absolute before:left-1/2 before:top-1/2 before:-translate-x-1/2 font-bold before:-translate-y-1/2  hover:bg-gray-200 bg-white text-white `}
+              ></div>
+            </div>
+          );
+        })}
       </div>
     </>
   );

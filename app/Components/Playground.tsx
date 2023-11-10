@@ -9,7 +9,7 @@ const Playground = ({
   difficult: boolean;
 }) => {
   return (
-    <div className="w-1/2 md:w-1/4 h-4/5 flex flex-col items-center justify-center w-min-fit h-min-fit overflow-clip ">
+    <div className="w-1/2 md:w-1/4 min-h-fit flex flex-col items-center justify-center min-w-fit  ">
       <GameMenu multiplayer={multiplayer} difficult={difficult} />
     </div>
   );

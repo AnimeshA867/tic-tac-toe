@@ -9,7 +9,7 @@ const page = () => {
           {" "}
           Choose difficulty
         </h2>
-        <div className=" grid grid-cols-1 gap-4 place-content-center justify-items-center lg:w-2/3 lg:min-w-fit lg:flex lg:justify-evenly ">
+        <div className=" grid grid-cols-1 gap-4 place-content-center justify-items-center lg:w-2/3 lg:min-w-fit lg:flex lg:justify-evenly text-white">
           <Link href={"/singleplayer/easy"} className="w-full h-full">
             <button
               className="text-[18px] px-3 py-2 lg:py-4 lg:px-6 bg-blue-700 lg:text-[25px] font-semibold rounded-md hover:bg-blue-800 w-full h-full"
