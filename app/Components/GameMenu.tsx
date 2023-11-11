@@ -243,7 +243,7 @@ const GameMenu = ({
                   wait ? "pointer-events-none" : "pointer-events-auto"
                 } ${
                   boardData[idx]
-                } before:text-xl md:before:text-6xl before:text-skate-400 before:absolute before:left-1/2 before:top-1/2 before:-translate-x-1/2 font-bold before:-translate-y-1/2  hover:bg-gray-200 bg-white text-white `}
+                } before:text-3xl md:before:text-6xl before:text-skate-400 before:absolute before:left-1/2 before:top-1/2 before:-translate-x-1/2 font-bold before:-translate-y-1/2  hover:bg-gray-200 bg-white text-white `}
               ></div>
             </div>
           );
